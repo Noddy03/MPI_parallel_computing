@@ -1,0 +1,111 @@
+#!/bin/bash
+# Job name
+#PBS -N matrix.pbs
+# Output files
+#PBS -o ./matrix_parallel.txt
+#PBS -e ./matrix_parallel.e
+# Queue name
+#PBS -q short_cpuQ
+# Set the maximum wall time
+#PBS -l walltime=0:60:00
+# Number of nodes, cpus, mpi processors and amount of memory
+#PBS -l select=1:ncpus=64:mem=128mb
+# Modules for Cpp
+module load gcc91
+module load mpich-3.2.1--gcc-9.1.0
+g++() {
+    g++-9.1.0 "$@"
+}
+g++ --version
+
+# Select the working directory
+cd /home/francesco.nodari/CODES
+
+#compile before running
+g++ -o serial.out serial.cpp
+
+mpicxx point_to_point_Async.cpp -o point_to_point_Async.out
+
+mpicxx point_to_point_NBB._Sync.cpp -o point_to_point_NBB._Sync.out
+
+mpicxx Buff_Non_Block.cpp -o Buff_Non_Block.out
+
+mpicxx Scatter_Gather.cpp -o Scatter_Gather.out
+mpicxx Scatter_Gather2.cpp -o Scatter_Gather2.out
+
+#run the project
+
+
+
+ 
+ for ((i = 4 ; i < 13 ; i++ )); do
+ echo "Exponent size= $i "
+ echo "Serial Code "
+./serial.out $i
+echo "MPI Codes"
+ echo "NUMBER OF THREADS = 4"
+mpirun -np 4 ./point_to_point_Async.out $i
+mpirun -np 4 ./point_to_point_NBB._Sync.out $i
+mpirun -np 4 ./Buff_Non_Block.out $i
+ mpirun -np 4 ./Scatter_Gather.out $i
+mpirun -np 4 ./Scatter_Gather2.out $i
+echo "NUMBER OF THREADS = 16"
+mpirun -np 16 ./point_to_point_Async.out $i
+mpirun -np 16 ./point_to_point_NBB._Sync.out $i
+mpirun -np 16 ./Buff_Non_Block.out $i $i
+mpirun -np 16 ./Scatter_Gather.out $i
+mpirun -np 16 ./Scatter_Gather2.out $i
+echo "NUMBER OF THREADS = 36"
+mpirun -np 36 ./point_to_point_Async.out $i
+mpirun -np 36 ./point_to_point_NBB._Sync.out $i
+mpirun -np 36 ./Buff_Non_Block.out $i $i
+mpirun -np 36 ./Scatter_Gather.out $i
+mpirun -np 36 ./Scatter_Gather2.out $i
+echo "NUMBER OF THREADS = 64"
+mpirun -np 64 ./point_to_point_Async.out $i
+mpirun -np 64 ./point_to_point_NBB._Sync.out $i
+mpirun -np 64 ./Buff_Non_Block.out $i $i
+mpirun -np 64 ./Scatter_Gather.out $i
+mpirun -np 64 ./Scatter_Gather2.out $i
+done
+echo "WEAK SCALING"
+  echo "NUMBER OF THREADS =1 serial code"
+  ./serial.out 4
+  echo "NUMBER OF THREADS =2"
+  mpirun -np 2 ./point_to_point_Async.out 5
+mpirun -np 2 ./point_to_point_NBB._Sync.out 5
+mpirun -np 2 ./Buff_Non_Block.out $i 5
+ mpirun -np 2 ./Scatter_Gather.out 5
+  mpirun -np 2 ./Scatter_Gather2.out 5
+    echo "NUMBER OF THREADS =4"
+  mpirun -np 4 ./point_to_point_Async.out 6
+mpirun -np 4 ./point_to_point_NBB._Sync.out 6
+mpirun -np 4 ./Buff_Non_Block.out $i 6
+ mpirun -np 4 ./Scatter_Gather.out 6
+  mpirun -np 4 ./Scatter_Gather2.out 6
+    echo "NUMBER OF THREADS =8"
+  mpirun -np 8 ./point_to_point_Async.out 7
+mpirun -np 8 ./point_to_point_NBB._Sync.out 7
+mpirun -np 8 ./Buff_Non_Block.out $i 7
+ mpirun -np 8 ./Scatter_Gather.out 7
+  mpirun -np 8 ./Scatter_Gather2.out 7
+    echo "NUMBER OF THREADS =16"
+  mpirun -np 16 ./point_to_point_Async.out 8
+mpirun -np 16 ./point_to_point_NBB._Sync.out 8
+mpirun -np 16 ./Buff_Non_Block.out $i 8
+ mpirun -np 16 ./Scatter_Gather.out 8
+  mpirun -np 16 ./Scatter_Gather2.out 8
+    echo "NUMBER OF THREADS =32"
+  mpirun -np 32 ./point_to_point_Async.out 9
+mpirun -np 32 ./point_to_point_NBB._Sync.out 9
+mpirun -np 32 ./Buff_Non_Block.out $i 9
+ mpirun -np 32 ./Scatter_Gather.out 9
+  mpirun -np 32 ./Scatter_Gather2.out 9
+      echo "NUMBER OF THREADS =64"
+    mpirun -np 64 ./point_to_point_Async.out 10
+mpirun -np 64 ./point_to_point_NBB._Sync.out 10
+mpirun -np 64 ./Buff_Non_Block.out $i 10
+ mpirun -np 64 ./Scatter_Gather.out 10
+  mpirun -np 64 ./Scatter_Gather2.out 10
+
+echo "Simulations all done"
